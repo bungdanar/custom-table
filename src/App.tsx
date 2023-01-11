@@ -1,16 +1,9 @@
-import CustomCard from './components/custom-card/CustomCard'
-import ClientSideTable from './components/custom-table/ClientSideTable'
+import ClientSideTablePage from './pages/client-side-table-page/ClientSideTablePage'
 
 function App() {
   return (
     <div className='container-fluid'>
-      <div className='row justify-content-center'>
-        <div className='col-sm-8'>
-          <CustomCard>
-            <ClientSideTable />
-          </CustomCard>
-        </div>
-      </div>
+      <ClientSideTablePage />
     </div>
   )
 }
