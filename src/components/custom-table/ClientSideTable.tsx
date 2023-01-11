@@ -2,6 +2,7 @@ import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table'
@@ -20,24 +21,30 @@ export default function ClientSideTable() {
   const columns = [
     columnHelper.accessor('firstName', {
       cell: (info) => info.getValue(),
+      enableColumnFilter: true,
     }),
     columnHelper.accessor((row) => row.lastName, {
       id: 'lastName',
       cell: (info) => <i>{info.getValue()}</i>,
       header: () => <span>Last Name</span>,
+      enableColumnFilter: false,
     }),
     columnHelper.accessor('age', {
       header: () => 'Age',
       cell: (info) => info.renderValue(),
+      enableColumnFilter: true,
     }),
     columnHelper.accessor('visits', {
       header: () => <span>Visits</span>,
+      enableColumnFilter: false,
     }),
     columnHelper.accessor('status', {
       header: 'Status',
+      enableColumnFilter: false,
     }),
     columnHelper.accessor('progress', {
       header: 'Profile Progress',
+      enableColumnFilter: false,
     }),
   ]
 
@@ -45,13 +52,14 @@ export default function ClientSideTable() {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   })
 
   return (
     <div>
       <TableContainer>
-        <TableHead headerGroups={table.getHeaderGroups()} />
+        <TableHead headerGroups={table.getHeaderGroups()} table={table} />
         <TableBody rowModel={table.getRowModel()} />
       </TableContainer>
       <TablePagination
