@@ -4,6 +4,7 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
 import { useState } from 'react'
@@ -22,29 +23,35 @@ export default function ClientSideTable() {
     columnHelper.accessor('firstName', {
       cell: (info) => info.getValue(),
       enableColumnFilter: true,
+      enableSorting: true,
     }),
     columnHelper.accessor((row) => row.lastName, {
       id: 'lastName',
       cell: (info) => <i>{info.getValue()}</i>,
       header: () => <span>Last Name</span>,
       enableColumnFilter: false,
+      enableSorting: false,
     }),
     columnHelper.accessor('age', {
       header: () => 'Age',
       cell: (info) => info.renderValue(),
       enableColumnFilter: true,
+      enableSorting: true,
     }),
     columnHelper.accessor('visits', {
       header: () => <span>Visits</span>,
       enableColumnFilter: false,
+      enableSorting: false,
     }),
     columnHelper.accessor('status', {
       header: 'Status',
       enableColumnFilter: false,
+      enableSorting: false,
     }),
     columnHelper.accessor('progress', {
       header: 'Profile Progress',
       enableColumnFilter: false,
+      enableSorting: false,
     }),
   ]
 
@@ -52,6 +59,7 @@ export default function ClientSideTable() {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   })

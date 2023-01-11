@@ -21,11 +21,22 @@ export default function TableHead<T>({
           {headerGroup.headers.map((header) => (
             <th key={header.id}>
               {header.isPlaceholder ? null : (
-                <div>
+                <div
+                  {...{
+                    className: header.column.getCanSort()
+                      ? 'cursor-pointer select-none'
+                      : '',
+                    onClick: header.column.getToggleSortingHandler(),
+                  }}
+                >
                   {flexRender(
                     header.column.columnDef.header,
                     header.getContext()
                   )}
+                  {{
+                    asc: ' 🔼',
+                    desc: ' 🔽',
+                  }[header.column.getIsSorted() as string] ?? null}
                   {header.column.getCanFilter() ? (
                     <div>
                       <Filter column={header.column} table={table} />
