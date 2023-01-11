@@ -1,9 +1,9 @@
-import ClientSideTablePage from './pages/client-side-table-page/ClientSideTablePage'
+import AppRoutes from './routes'
 
 function App() {
   return (
     <div className='container-fluid'>
-      <ClientSideTablePage />
+      <AppRoutes />
     </div>
   )
 }
