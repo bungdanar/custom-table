@@ -2,6 +2,7 @@ import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table'
 import { useState } from 'react'
@@ -9,9 +10,10 @@ import { makeData, Person } from '../../utils/makeData'
 import TableBody from './table-body/TableBody'
 import TableContainer from './table-container/TableContainer'
 import TableHead from './table-head/TableHead'
+import TablePagination from './table-pagination/TablePagination'
 
 export default function ClientSideTable() {
-  const [data, setData] = useState<Person[]>(() => makeData(10))
+  const [data, setData] = useState<Person[]>(() => makeData(100))
 
   const columnHelper = createColumnHelper<Person>()
 
@@ -43,6 +45,7 @@ export default function ClientSideTable() {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   })
 
   return (
@@ -51,6 +54,15 @@ export default function ClientSideTable() {
         <TableHead headerGroups={table.getHeaderGroups()} />
         <TableBody rowModel={table.getRowModel()} />
       </TableContainer>
+      <TablePagination
+        pageIndex={table.getState().pagination.pageIndex}
+        pageCount={table.getPageCount()}
+        setPageIndex={table.setPageIndex}
+        handlePrevPage={table.previousPage}
+        handleNextPage={table.nextPage}
+        canPrevPage={table.getCanPreviousPage()}
+        canNextPage={table.getCanNextPage()}
+      />
     </div>
   )
 }

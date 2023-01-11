@@ -5,7 +5,7 @@ function App() {
   return (
     <div className='container-fluid'>
       <div className='row justify-content-center'>
-        <div className='col-sm-6'>
+        <div className='col-sm-8'>
           <CustomCard>
             <ClientSideTable />
           </CustomCard>
