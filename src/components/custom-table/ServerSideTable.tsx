@@ -6,6 +6,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   PaginationState,
+  SortingState,
   useReactTable,
 } from '@tanstack/react-table'
 import { useEffect, useMemo, useState } from 'react'
@@ -21,18 +22,21 @@ import TablePagination from './table-pagination/TablePagination'
 export default function ServerSideTable() {
   const columnHelper = createColumnHelper<Probis>()
 
-  const columns = [
-    columnHelper.accessor('nama_probis', {
-      header: () => 'Nama Probis',
-      enableColumnFilter: true,
-      enableSorting: false,
-    }),
-    columnHelper.accessor('tahun', {
-      header: () => 'Tahun',
-      enableColumnFilter: true,
-      enableSorting: false,
-    }),
-  ]
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('nama_probis', {
+        header: () => 'Nama Probis',
+        enableColumnFilter: true,
+        enableSorting: true,
+      }),
+      columnHelper.accessor('tahun', {
+        header: () => 'Tahun',
+        enableColumnFilter: true,
+        enableSorting: true,
+      }),
+    ],
+    []
+  )
 
   const [data, setData] = useState<Probis[]>([])
   const [loading, setLoading] = useState(false)
@@ -46,6 +50,7 @@ export default function ServerSideTable() {
   })
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = useState<SortingState>([])
 
   const fetchData = async () => {
     const offset = pageSize * pageIndex
@@ -57,9 +62,10 @@ export default function ServerSideTable() {
       const query: ProbisQuery = {
         offset,
         limit: pageSize,
-        tahun: new Date().getFullYear(),
+        // tahun: new Date().getFullYear(),
       }
 
+      // Filter
       for (let i = 0; i < columnFilters.length; i++) {
         const c = columnFilters[i]
 
@@ -70,6 +76,19 @@ export default function ServerSideTable() {
         if (c.id === 'tahun') {
           query.tahun = parseInt(c.value as string)
         }
+      }
+
+      // Sort
+      if (sorting.length) {
+        query.sort = []
+
+        for (let i = 0; i < sorting.length; i++) {
+          const s = sorting[i]
+          const identifier = s.desc ? ':DESC' : ':ASC'
+          query.sort.push(`${s.id}${identifier}`)
+        }
+      } else {
+        delete query.sort
       }
 
       const {
@@ -88,7 +107,7 @@ export default function ServerSideTable() {
 
   useEffect(() => {
     fetchData()
-  }, [pageIndex, pageSize, columnFilters])
+  }, [pageIndex, pageSize, columnFilters, sorting])
 
   const defaultData = useMemo(() => [], [])
 
@@ -100,6 +119,10 @@ export default function ServerSideTable() {
     [pageIndex, pageSize]
   )
 
+  // useEffect(() => {
+  //   console.log('SORT: ', sorting)
+  // }, [sorting])
+
   const table = useReactTable({
     data: data ?? defaultData,
     columns,
@@ -107,11 +130,15 @@ export default function ServerSideTable() {
     state: {
       pagination,
       columnFilters,
+      sorting,
     },
+    isMultiSortEvent: () => true,
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
     manualPagination: true,
     manualFiltering: true,
+    manualSorting: true,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

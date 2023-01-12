@@ -4,8 +4,9 @@ import { request } from '../utils/handle-request'
 export type ProbisQuery = {
   limit: number
   offset: number
-  tahun: number
+  tahun?: number
   nama?: string
+  sort?: string[]
 }
 
 export const probisApi = {
