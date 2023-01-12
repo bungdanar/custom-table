@@ -16,11 +16,11 @@ function getProdServerHost() {
 
 function getServerBaseUrl() {
   const serverBaseUrl =
-    process.env.NODE_ENV === 'production'
+    import.meta.env.MODE === 'production'
       ? getProdServerHost()
-      : process.env.REACT_APP_BACKEND_API
+      : import.meta.env.VITE_SERVER_URL
 
-  const subdomain = process.env.REACT_APP_BACKEND_API_SUBDOMAIN
+  const subdomain = import.meta.env.VITE_SUBDOMAIN_URL
 
   return subdomain ? `${serverBaseUrl}/${subdomain}` : serverBaseUrl
 }

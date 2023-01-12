@@ -43,7 +43,7 @@ export const generateErrMessage = (err: unknown): string => {
   } else {
     errMessage = getErrorMessage(err)
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.MODE !== 'production') {
       console.error(errMessage)
     }
   }
