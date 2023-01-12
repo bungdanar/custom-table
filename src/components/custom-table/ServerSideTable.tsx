@@ -9,7 +9,7 @@ import {
   SortingState,
   useReactTable,
 } from '@tanstack/react-table'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { probisApi, ProbisQuery } from '../../api/probis'
 import { Probis } from '../../data-types/probis'
 import { generateErrMessage } from '../../utils/handle-error'
@@ -18,6 +18,8 @@ import TableBody from './table-body/TableBody'
 import TableContainer from './table-container/TableContainer'
 import TableHead from './table-head/TableHead'
 import TablePagination from './table-pagination/TablePagination'
+
+const currentYear = new Date().getFullYear()
 
 export default function ServerSideTable() {
   const columnHelper = createColumnHelper<Probis>()
@@ -31,12 +33,14 @@ export default function ServerSideTable() {
       }),
       columnHelper.accessor('tahun', {
         header: () => 'Tahun',
-        enableColumnFilter: true,
-        enableSorting: true,
+        enableColumnFilter: false,
+        enableSorting: false,
       }),
     ],
     []
   )
+
+  const [year, setYear] = useState(new Date().getFullYear())
 
   const [data, setData] = useState<Probis[]>([])
   const [loading, setLoading] = useState(false)
@@ -62,7 +66,7 @@ export default function ServerSideTable() {
       const query: ProbisQuery = {
         offset,
         limit: pageSize,
-        // tahun: new Date().getFullYear(),
+        tahun: year,
       }
 
       // Filter
@@ -107,7 +111,7 @@ export default function ServerSideTable() {
 
   useEffect(() => {
     fetchData()
-  }, [pageIndex, pageSize, columnFilters, sorting])
+  }, [pageIndex, pageSize, columnFilters, sorting, year])
 
   const defaultData = useMemo(() => [], [])
 
@@ -122,6 +126,32 @@ export default function ServerSideTable() {
   // useEffect(() => {
   //   console.log('SORT: ', sorting)
   // }, [sorting])
+
+  const handleChangeYear = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newValue = parseInt(e.target.value)
+    setYear(newValue)
+
+    setColumnFilters((prev) => {
+      const yearFilterIdx = prev.findIndex((f) => f.id === 'tahun')
+      if (yearFilterIdx > -1) {
+        prev[yearFilterIdx].value = newValue
+      } else {
+        prev.push({
+          id: 'tahun',
+          value: newValue,
+        })
+      }
+
+      return prev
+    })
+
+    setPagination((prev) => {
+      return {
+        ...prev,
+        pageIndex: 0,
+      }
+    })
+  }
 
   const table = useReactTable({
     data: data ?? defaultData,
@@ -146,26 +176,55 @@ export default function ServerSideTable() {
   })
 
   return (
-    <div className='row justify-content-center'>
-      <div className='col-sm-8'>
-        <CustomCard>
-          <div>
-            <TableContainer>
-              <TableHead headerGroups={table.getHeaderGroups()} table={table} />
-              <TableBody rowModel={table.getRowModel()} />
-            </TableContainer>
-            <TablePagination
-              pageIndex={table.getState().pagination.pageIndex}
-              pageCount={table.getPageCount()}
-              setPageIndex={table.setPageIndex}
-              handlePrevPage={table.previousPage}
-              handleNextPage={table.nextPage}
-              canPrevPage={table.getCanPreviousPage()}
-              canNextPage={table.getCanNextPage()}
-            />
-          </div>
-        </CustomCard>
+    <>
+      <div className='row justify-content-center'>
+        <div className='col-sm-2'>
+          <CustomCard>
+            <select
+              className='form-select'
+              value={year}
+              onChange={handleChangeYear}
+            >
+              {[
+                currentYear,
+                currentYear - 1,
+                currentYear - 2,
+                currentYear - 3,
+                currentYear - 4,
+              ].map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </CustomCard>
+        </div>
       </div>
-    </div>
+      <br />
+      <div className='row justify-content-center'>
+        <div className='col-sm-8'>
+          <CustomCard>
+            <div>
+              <TableContainer>
+                <TableHead
+                  headerGroups={table.getHeaderGroups()}
+                  table={table}
+                />
+                <TableBody rowModel={table.getRowModel()} />
+              </TableContainer>
+              <TablePagination
+                pageIndex={table.getState().pagination.pageIndex}
+                pageCount={table.getPageCount()}
+                setPageIndex={table.setPageIndex}
+                handlePrevPage={table.previousPage}
+                handleNextPage={table.nextPage}
+                canPrevPage={table.getCanPreviousPage()}
+                canNextPage={table.getCanNextPage()}
+              />
+            </div>
+          </CustomCard>
+        </div>
+      </div>
+    </>
   )
 }
