@@ -1,7 +1,7 @@
 import { Probis } from '../data-types/probis'
 import { request } from '../utils/handle-request'
 
-type ProbisQuery = {
+export type ProbisQuery = {
   limit: number
   offset: number
   tahun: number

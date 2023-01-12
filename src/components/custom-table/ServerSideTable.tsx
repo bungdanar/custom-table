@@ -1,4 +1,5 @@
 import {
+  ColumnFiltersState,
   createColumnHelper,
   getCoreRowModel,
   getFilteredRowModel,
@@ -7,8 +8,8 @@ import {
   PaginationState,
   useReactTable,
 } from '@tanstack/react-table'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { probisApi } from '../../api/probis'
+import { useEffect, useMemo, useState } from 'react'
+import { probisApi, ProbisQuery } from '../../api/probis'
 import { Probis } from '../../data-types/probis'
 import { generateErrMessage } from '../../utils/handle-error'
 import CustomCard from '../custom-card/CustomCard'
@@ -23,12 +24,12 @@ export default function ServerSideTable() {
   const columns = [
     columnHelper.accessor('nama_probis', {
       header: () => 'Nama Probis',
-      enableColumnFilter: false,
+      enableColumnFilter: true,
       enableSorting: false,
     }),
     columnHelper.accessor('tahun', {
       header: () => 'Tahun',
-      enableColumnFilter: false,
+      enableColumnFilter: true,
       enableSorting: false,
     }),
   ]
@@ -44,6 +45,8 @@ export default function ServerSideTable() {
     pageSize: 10,
   })
 
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+
   const fetchData = async () => {
     const offset = pageSize * pageIndex
 
@@ -51,14 +54,27 @@ export default function ServerSideTable() {
     setErrMessage('')
 
     try {
-      const {
-        data: { count, rows },
-      } = await probisApi.getAll({
+      const query: ProbisQuery = {
         offset,
         limit: pageSize,
-        // tahun: new Date().getFullYear()
-        tahun: 2022,
-      })
+        tahun: new Date().getFullYear(),
+      }
+
+      for (let i = 0; i < columnFilters.length; i++) {
+        const c = columnFilters[i]
+
+        if (c.id === 'nama_probis') {
+          query.nama = c.value as string
+        }
+
+        if (c.id === 'tahun') {
+          query.tahun = parseInt(c.value as string)
+        }
+      }
+
+      const {
+        data: { count, rows },
+      } = await probisApi.getAll(query)
 
       setData(rows)
       setPageCount(Math.ceil(count / pageSize))
@@ -72,7 +88,7 @@ export default function ServerSideTable() {
 
   useEffect(() => {
     fetchData()
-  }, [pageIndex, pageSize])
+  }, [pageIndex, pageSize, columnFilters])
 
   const defaultData = useMemo(() => [], [])
 
@@ -85,14 +101,17 @@ export default function ServerSideTable() {
   )
 
   const table = useReactTable({
-    data,
+    data: data ?? defaultData,
     columns,
     pageCount,
     state: {
       pagination,
+      columnFilters,
     },
     onPaginationChange: setPagination,
+    onColumnFiltersChange: setColumnFilters,
     manualPagination: true,
+    manualFiltering: true,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
