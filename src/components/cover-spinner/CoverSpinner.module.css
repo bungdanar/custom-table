@@ -1,0 +1,25 @@
+.coverSpinner {
+  position: relative;
+}
+
+.coverSpinner .stackSpinner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  height: 100%;
+  width: 100%;
+  opacity: 0.75;
+  z-index: 2;
+  /* color: #fff; */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.coverSpinner .errText {
+  color: red;
+  font-weight: 600;
+  text-align: center;
+}

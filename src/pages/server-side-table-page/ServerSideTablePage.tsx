@@ -185,6 +185,8 @@ export default function ServerSideTablePage() {
               setColumnFilters={setColumnFilters}
               setPagination={setPagination}
               setSorting={setSorting}
+              loading={loading}
+              errMessage={errMessage}
             />
           </CustomCard>
         </div>

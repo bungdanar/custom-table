@@ -11,6 +11,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { useMemo } from 'react'
+import CoverSpinner from '../cover-spinner/CoverSpinner'
 import TableBody from './table-body/TableBody'
 import TableContainer from './table-container/TableContainer'
 import TableHead from './table-head/TableHead'
@@ -27,6 +28,8 @@ interface ServerSideTableProps<T> {
   setPagination: OnChangeFn<PaginationState> | undefined
   setColumnFilters: OnChangeFn<ColumnFiltersState> | undefined
   setSorting: OnChangeFn<SortingState> | undefined
+  loading: boolean
+  errMessage: string
 }
 
 export default function ServerSideTable<T>({
@@ -40,6 +43,8 @@ export default function ServerSideTable<T>({
   setPagination,
   setColumnFilters,
   setSorting,
+  loading,
+  errMessage,
 }: ServerSideTableProps<T>) {
   const defaultData = useMemo(() => [], [])
 
@@ -75,19 +80,21 @@ export default function ServerSideTable<T>({
 
   return (
     <div>
-      <TableContainer>
-        <TableHead headerGroups={table.getHeaderGroups()} table={table} />
-        <TableBody rowModel={table.getRowModel()} />
-      </TableContainer>
-      <TablePagination
-        pageIndex={table.getState().pagination.pageIndex}
-        pageCount={table.getPageCount()}
-        setPageIndex={table.setPageIndex}
-        handlePrevPage={table.previousPage}
-        handleNextPage={table.nextPage}
-        canPrevPage={table.getCanPreviousPage()}
-        canNextPage={table.getCanNextPage()}
-      />
+      <CoverSpinner isLoading={loading} errMessage={errMessage}>
+        <TableContainer>
+          <TableHead headerGroups={table.getHeaderGroups()} table={table} />
+          <TableBody rowModel={table.getRowModel()} />
+        </TableContainer>
+        <TablePagination
+          pageIndex={table.getState().pagination.pageIndex}
+          pageCount={table.getPageCount()}
+          setPageIndex={table.setPageIndex}
+          handlePrevPage={table.previousPage}
+          handleNextPage={table.nextPage}
+          canPrevPage={table.getCanPreviousPage()}
+          canNextPage={table.getCanNextPage()}
+        />
+      </CoverSpinner>
     </div>
   )
 }
